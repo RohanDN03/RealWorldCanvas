@@ -1,8 +1,5 @@
-import { config } from "dotenv";
-import { resolve } from "path";
-
-// Load .env from root of the monorepo
-config({ path: resolve(__dirname, "../../../.env") });
-
 import { PrismaClient } from "@prisma/client";
+
+// In production, DATABASE_URL is set as environment variable by Railway
+// In development, it's loaded from .env file by the application
 export const prismaClient = new PrismaClient();
