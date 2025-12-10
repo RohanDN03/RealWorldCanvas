@@ -9,7 +9,7 @@ import cors from "cors";
 const app = express();
 app.use(express.json());
 app.use(cors())
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 app.post("/signup", async(req, res) => {
   const parsedData = CreateUserSchema.safeParse(req.body);
