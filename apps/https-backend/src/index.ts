@@ -11,6 +11,11 @@ app.use(express.json());
 app.use(cors())
 const PORT = process.env.PORT || 3002;
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", port: PORT, env: process.env.NODE_ENV });
+});
+
 app.post("/signup", async(req, res) => {
   const parsedData = CreateUserSchema.safeParse(req.body);
   if (!parsedData.success) {
