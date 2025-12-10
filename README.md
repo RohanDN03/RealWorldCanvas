@@ -2,6 +2,10 @@
 
 A real-time collaborative drawing application where multiple users can draw, chat, and collaborate on a shared canvas simultaneously.
 
+## 🌐 Live Demo
+
+**👉 [https://excelidraw-frontend-production.up.railway.app](https://excelidraw-frontend-production.up.railway.app)**
+
 ![DrawTogether](https://img.shields.io/badge/DrawTogether-Collaborative%20Whiteboard-purple)
 ![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)
