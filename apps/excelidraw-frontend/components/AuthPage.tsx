@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Pencil, Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+import { HTTP_BACKEND } from "@/config";
 
 export function AuthPage({ isSignin }: { isSignin: boolean }) {
     const [email, setEmail] = useState("");
@@ -16,7 +17,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
         setLoading(true);
         try {
             if (isSignin) {
-                const resp = await fetch("http://localhost:3002/signin", {
+                const resp = await fetch(`${HTTP_BACKEND}/signin`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username: email, password })
@@ -35,7 +36,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                     alert("No token returned from server");
                 }
             } else {
-                const resp = await fetch("http://localhost:3002/signup", {
+                const resp = await fetch(`${HTTP_BACKEND}/signup`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username: email, password, name })
@@ -48,7 +49,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                 }
                 // Signup succeeded. Auto sign-in and redirect to dashboard
                 try {
-                    const signinResp = await fetch("http://localhost:3002/signin", {
+                    const signinResp = await fetch(`${HTTP_BACKEND}/signin`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ username: email, password })
