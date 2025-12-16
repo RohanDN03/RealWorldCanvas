@@ -1,35 +1,27 @@
-// import { ReactNode } from "react";
 
-// export function IconButton({
-//     icon, onClick, activated
-// }: {
-//     icon: ReactNode,
-//     onClick: () => void,
-//     activated: boolean
-// }) {
-//     return <div className={`m-2 pointer rounded-full border p-2 bg-black hover:bg-gray ${activated ? "text-red-400" : "text-white"}`} onClick={onClick}>
-//         {icon}
-//     </div>
-// }
 import { ReactNode } from "react";
 
 export function IconButton({
     icon,
     onClick,
     activated,
-    tooltip
+    tooltip,
+    theme = "dark"
 }: {
     icon: ReactNode;
     onClick: () => void;
     activated: boolean;
     tooltip?: string;
+    theme?: "light" | "dark";
 }) {
     return (
         <button
-            className={`p-2 rounded-lg transition-all ${
+            className={`p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-all flex-shrink-0 ${
                 activated
                     ? "bg-purple-600 text-white"
-                    : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                    : theme === "dark"
+                        ? "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
             }`}
             onClick={onClick}
             title={tooltip}
