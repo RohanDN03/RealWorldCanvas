@@ -109,7 +109,7 @@ draw-app/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/draw-app.git
+   git clone [https://github.com/yourusername/draw-app.git](https://github.com/RohanDN03/RealWorldCanvas)
    cd draw-app
    ```
 
