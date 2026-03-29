@@ -5,6 +5,32 @@ A real-time collaborative drawing application where multiple users can draw, cha
 ## 🌐 Live Demo
 
 **👉 [https://excelidraw-frontend-production.up.railway.app](https://excelidraw-frontend-production.up.railway.app)**
+## 📸 Project Preview
+
+### 🎯 Real-time Collaborative Canvas
+<p align="center">
+  <img width="1437" height="777" alt="Screenshot 2026-01-09 at 9 45 30 PM" src="https://github.com/user-attachments/assets/7755dd3f-d274-486f-8c28-78aa70f17b4b" />
+<img width="1439" height="772" alt="Screenshot 2026-01-09 at 9 45 23 PM" src="https://github.com/user-attachments/assets/ef237bed-cc75-4558-9a16-c277bb1777f9" />
+</p>
+
+### 💬 Chat & Communication
+<p align="center">
+   <img width="1439" height="775" alt="Screenshot 2026-01-09 at 9 42 52 PM" src="https://github.com/user-attachments/assets/57ab6836-ca3f-4b71-a188-d075524eedd5" />
+  <img width="1440" height="775" alt="Screenshot 2026-01-09 at 9 41 57 PM" src="https://github.com/user-attachments/assets/34ecd491-28f7-4a2c-82c1-a798d434e952" />
+
+</p>
+
+### 👥 Multi-user Collaboration
+<p align="center">
+  <img width="1439" height="777" alt="Screenshot 2026-01-09 at 9 36 56 PM" src="https://github.com/user-attachments/assets/ecaf8d1d-dedb-4bcb-b76e-2d19c425d9ea" />
+
+</p>
+
+### 🏠 Room Dashboard
+<p align="center">
+  <img width="1440" height="778" alt="Screenshot 2026-01-09 at 9 26 34 PM" src="https://github.com/user-attachments/assets/57e64c98-0ec9-40c5-a705-abb4985eb184" />
+
+</p>
 
 ![DrawTogether](https://img.shields.io/badge/DrawTogether-Collaborative%20Whiteboard-purple)
 ![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)
