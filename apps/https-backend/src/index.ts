@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { middleware } from './middleware.js';
 import {CreateUserSchema,SigninSchema,CreateRoomsSchema} from '@repo/common/types'
@@ -28,6 +29,7 @@ app.post("/signup", async(req, res) => {
     const hashedPassword = await bcrypt.hash(parsedData.data.password, 10);
     const user = await prismaClient.user.create({
       data: {
+        id: randomUUID(),
         email: parsedData.data?.username,
         password: hashedPassword,
         name: parsedData.data.name
@@ -169,7 +171,7 @@ app.get("/shapes/:roomId", async (req, res) => {
       where: { roomId: numericRoomId },
       orderBy: { createdAt: 'asc' },
       include: {
-        user: {
+        User: {
           select: { name: true }
         }
       }
@@ -184,7 +186,7 @@ app.get("/shapes/:roomId", async (req, res) => {
           shapeId: parsed.shapeId || `db-${s.id}`,
           id: s.id,
           userId: s.userId,
-          userName: s.user.name
+          userName: s.User.name
         };
       })
     });
@@ -221,7 +223,7 @@ app.get("/chats/:roomId", async (req, res) => {
       orderBy: { createdAt: 'asc' },
       take: 100,
       include: {
-        user: {
+        User: {
           select: { name: true }
         }
       }
@@ -245,7 +247,7 @@ app.get("/chats/:roomId", async (req, res) => {
         id: m.id,
         message: m.message,
         userId: m.userId,
-        userName: m.user.name,
+        userName: m.User.name,
         createdAt: m.createdAt
       }))
     });
