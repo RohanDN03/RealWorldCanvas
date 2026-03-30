@@ -50,53 +50,195 @@ A real-time collaborative drawing application where multiple users can draw, cha
 - **User Authentication** - Secure signup/signin with JWT tokens
 - **Responsive Design** - Works on desktop and tablet devices
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
-### Frontend
-- **Next.js 15.5.2** - React framework with App Router
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS** - Utility-first CSS framework
-- **Lucide React** - Beautiful icons
-- **HTML5 Canvas API** - For drawing functionality
+### 🚀 Frontend
+- **Next.js 15.5.2** – React framework with App Router for scalable applications  
+- **React 19.1.0** – Component-based UI library  
+- **TypeScript 5.9.2** – Strongly typed JavaScript for better reliability  
+- **Tailwind CSS 3.4.17** – Utility-first CSS framework for rapid UI development  
+- **Lucide React 0.542.0** – Modern icon library  
+- **HTML5 Canvas API** – Native drawing functionality for real-time canvas rendering  
+- **Axios** – Promise-based HTTP client for API communication  
 
-### Backend
-- **Express.js** - HTTP server for REST API
-- **WebSocket (ws)** - Real-time bidirectional communication
-- **JWT** - JSON Web Tokens for authentication
-- **bcryptjs** - Password hashing
+---
 
-### Database
-- **PostgreSQL** - Relational database (Neon cloud)
-- **Prisma ORM** - Type-safe database client
+### ⚙️ Backend
+- **Express.js 4.21.2** – Lightweight and flexible REST API server  
+- **WebSocket (ws 8.18.0)** – Enables real-time bidirectional communication  
+- **JWT (jsonwebtoken 9.0.2)** – Secure authentication using tokens  
+- **bcryptjs 3.0.2** – Password hashing for secure user credentials  
+- **Zod 3.25.76** – Schema validation for robust input handling  
+- **CORS** – Middleware for handling cross-origin requests  
 
-### Monorepo & Build Tools
-- **Turborepo** - High-performance build system
-- **pnpm** - Fast, disk space efficient package manager
+---
+
+### 🗄️ Database
+- **PostgreSQL** – Relational database (hosted on Neon cloud)  
+- **Prisma ORM 6.15.0** – Type-safe and modern database ORM  
+- **@prisma/client 6.15.0** – Auto-generated client for database queries  
+
+---
+
+### 📦 Monorepo & Build Tools
+- **Turborepo 2.5.6** – High-performance build system for monorepos  
+- **pnpm 10.15.0** – Fast and efficient package manager  
+- **TypeScript** – Static type checking across all packages  
+- **ESLint** – Code linting for maintaining code quality  
+- **Prettier** – Code formatting for consistent style  
+
+---
 
 ## 📁 Project Structure
 
 ```
-draw-app/
+RealWorldCanvas/
 ├── apps/
-│   ├── excelidraw-frontend/    # Main drawing app (Next.js)
-│   │   ├── app/                # Next.js App Router pages
-│   │   ├── components/         # React components
-│   │   └── draw/               # Canvas drawing logic
-│   ├── https-backend/          # REST API server (Express)
-│   ├── ws-backend/             # WebSocket server
-│   └── web/                    # Additional web app
+│   ├── excelidraw-frontend/     # Main React/Next.js drawing app (port 3001)
+│   ├── https-backend/           # Express REST API server (port 3002)
+│   ├── ws-backend/              # WebSocket server for real-time sync (port 8080)
+│   └── web/                     # Additional web app
 ├── packages/
-│   ├── db/                     # Prisma database client
-│   ├── common/                 # Shared types & schemas
-│   ├── backend-common/         # Shared backend utilities
-│   ├── ui/                     # Shared UI components
-│   ├── eslint-config/          # ESLint configurations
-│   └── typescript-config/      # TypeScript configurations
-├── package.json
-├── pnpm-workspace.yaml
-└── turbo.json
+│   ├── common/                  # Shared Zod schemas and types
+│   ├── db/                      # Prisma database client
+│   ├── backend-common/          # Shared backend utilities (config, middleware)
+│   ├── ui/                      # Shared React UI components
+│   ├── eslint-config/           # Shared ESLint configurations
+│   └── typescript-config/       # Shared TypeScript configurations
+├── docker-compose.yml           # Docker Compose for containerized deployment
+├── package.json                 # Root workspace config
+├── pnpm-workspace.yaml          # pnpm monorepo config
+├── turbo.json                   # Turborepo build orchestration config
+├── pnpm-lock.yaml               # Lock file for dependencies
+├── README.md                    # Main documentation
+└── .env.example                 # Environment variable template
 ```
+## 🚪 Main Entry Points
 
+### 🎨 Frontend Application
+- **Entry:** `/apps/excelidraw-frontend/app/page.tsx` (Landing Page)  
+- **Port:** `3001` (development, served via Next.js)  
+
+#### 🔗 Key Routes
+- `/` – Landing page with features overview  
+- `/signup` – User registration  
+- `/signin` – User login  
+- `/dashboard` – User's rooms dashboard  
+- `/canvas/:roomSlug` – Collaborative drawing canvas for a specific room  
+
+---
+
+### ⚙️ REST API Backend
+- **Entry:** `/apps/https-backend/src/index.ts`  
+- **Port:** `3002`  
+
+#### 📡 Key Endpoints
+- `POST /signup` – Register a new user  
+- `POST /signin` – Authenticate user and return token  
+- `POST /room` – Create a new drawing room  
+- `GET /rooms` – Retrieve user's rooms  
+- `GET /room/:slug` – Get room details  
+- `GET /shapes/:roomId` – Fetch all shapes in a room  
+- `DELETE /shapes/:roomId` – Clear all shapes from canvas  
+- `GET /chats/:roomId` – Fetch chat messages  
+- `GET /me` – Get current authenticated user info  
+
+---
+
+### 🔌 WebSocket Server
+- **Entry:** `/apps/ws-backend/src/index.ts`  
+- **Port:** `8080`  
+
+#### ⚡ Real-time Events
+
+**Client → Server**
+- `join_room` – Join a drawing room  
+- `leave_room` – Leave a room  
+- `shape` – Send new shape data  
+- `erase_shape` – Remove a specific shape  
+- `chat` – Send chat message  
+- `cursor_move` – Sync cursor position  
+- `zoom` – Sync zoom level  
+- `clear_canvas` – Clear all shapes  
+
+**Server → Clients**
+- `active_users` – Broadcast active users in room  
+- `shape` – Sync new shapes  
+- `erase_shape` – Sync shape removal  
+- `chat` – Broadcast chat messages  
+- `user_joined` – Notify when a user joins  
+- `user_left` – Notify when a user leaves  
+
+---
+## ✨ Overview
+
+**DrawTogether** is a real-time collaborative whiteboard application that allows multiple users to draw, communicate, and collaborate seamlessly on a shared canvas.
+
+Whether you're brainstorming ideas, teaching concepts, or working on designs, DrawTogether provides a smooth and interactive experience with live synchronization.
+
+---
+
+## 🚀 Core Features
+
+### 🎨 Real-time Collaborative Drawing
+- Multiple users can draw simultaneously on a shared canvas  
+- Instant synchronization using WebSockets  
+
+### 🧰 Shape Tools
+- Rectangle  
+- Circle  
+- Line  
+- Pencil (freehand drawing)  
+- Eraser  
+
+### 🖱️ Live Cursor Tracking
+- See other users' cursor positions in real-time  
+- Improves collaboration and awareness  
+
+### 💬 Chat Panel
+- Built-in messaging system within each room  
+- Communicate instantly while drawing  
+
+### 👥 Active Users Display
+- View all participants currently present in the room  
+- Real-time presence updates  
+
+### 🏠 Room-based Collaboration
+- Create or join rooms using unique slugs  
+- Each room is isolated with its own canvas and chat  
+
+### 💾 Persistent Storage
+- All drawings and chat messages are stored in PostgreSQL  
+- Data remains available across sessions  
+
+### 🔐 User Authentication
+- Secure signup and login system  
+- JWT-based authentication  
+
+### 📱 Responsive Design
+- Optimized for desktop and tablet devices  
+
+---
+
+## ⚡ Key Highlights
+
+- **Real-time sync** via WebSocket  
+  *(shapes, chat, cursor movement, zoom level)*  
+
+- **Room Isolation**  
+  - Separate canvas, chat, and users per room  
+
+- **Multi-user Presence Awareness**  
+  - Know who is active and interacting  
+
+- **Persistent Collaboration**  
+  - Resume work with saved drawings and messages  
+
+- **One-to-Many Synchronization**  
+  - All users see the exact same canvas state instantly  
+
+---
+  
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -142,7 +284,30 @@ draw-app/
    cd ../..
    pnpm dev
    ```
+## ⚙️ Configuration Files
 
+### 📁 Key Config Files
+
+| File | Purpose |
+|------|--------|
+| `package.json` | Root workspace configuration with Turbo scripts |
+| `pnpm-workspace.yaml` | Monorepo workspace definition (`apps/*`, `packages/*`) |
+| `turbo.json` | Turborepo task pipeline and caching |
+| `.env.example` | Environment variables template |
+| `docker-compose.yml` | Docker services orchestration |
+| `apps/*/package.json` | Individual app dependencies and scripts |
+| `packages/db/prisma/schema.prisma` | Database schema (User, Room, Chat, Shape models) |
+| `apps/excelidraw-frontend/tsconfig.json` | Frontend TypeScript configuration |
+| `apps/excelidraw-frontend/next.config.ts` | Next.js configuration |
+| `apps/excelidraw-frontend/tailwind.config.ts` | Tailwind CSS configuration |
+| `apps/https-backend/tsconfig.json` | Backend TypeScript configuration |
+| `apps/ws-backend/tsconfig.json` | WebSocket server TypeScript configuration |
+| `packages/typescript-config/base.json` | Shared base TypeScript config |
+| `packages/typescript-config/nextjs.json` | Shared Next.js TypeScript config |
+| `packages/typescript-config/react-library.json` | Shared React library TypeScript config |
+| `.vscode/settings.json` | VS Code workspace settings |
+
+---
 ### Access the Application
 
 Once running, the following services will be available:
