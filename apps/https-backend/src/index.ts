@@ -45,8 +45,9 @@ app.post("/signup", async(req, res) => {
       return res.status(500).json({ message: "Server database is not configured" });
     }
     res.status(411).json({
-      message:"User already exists with this username"
-    })
+      message: "User already exists or another error occurred.",
+      error: e instanceof Error ? e.message : "An unknown error occurred"
+    });
   }
 });
 
