@@ -200,12 +200,21 @@ export class Game {
     }
     setTheme(theme: "light" | "dark") {
         this.theme = theme;
-        // Update default stroke color based on theme if current is the default
-        if (this.strokeColor === "#fff" || this.strokeColor === "#ffffff") {
-            this.strokeColor = theme === "dark" ? "#ffffff" : "#1e1e1e";
-        } else if (this.strokeColor === "#1e1e1e" || this.strokeColor === "#000000" || this.strokeColor === "#000") {
-            this.strokeColor = theme === "dark" ? "#ffffff" : "#1e1e1e";
+        const newDefaultColor = theme === "dark" ? "#ffffff" : "#1e1e1e";
+        const oldDefaultColor = theme === "dark" ? "#1e1e1e" : "#ffffff";
+
+        // Update the currently selected stroke color if it's a default color
+        if (this.strokeColor === oldDefaultColor || this.strokeColor === "#000000" || this.strokeColor === "#ffffff") {
+            this.strokeColor = newDefaultColor;
         }
+
+        // Update the colors of existing shapes
+        this.existingShapes.forEach(shape => {
+            if (shape.strokeColor === oldDefaultColor || shape.strokeColor === "#000000" || shape.strokeColor === "#ffffff") {
+                shape.strokeColor = newDefaultColor;
+            }
+        });
+
         this.clearCanvas();
     }
     setZoom(scale: number, broadcast: boolean = true) {

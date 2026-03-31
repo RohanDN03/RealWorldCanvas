@@ -9,7 +9,6 @@
     "dev": "npm run build && npm run start"
   },
   "dependencies": {
-    "@repo/backend-common": "workspace:*",
     "@repo/db": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/jsonwebtoken": "^9.0.10",

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Send, X, MessageCircle, ChevronRight } from "lucide-react";
 import { HTTP_BACKEND } from "@/config";
 import { useTheme } from "@/context/ThemeContext";
+import { getExistingChats } from "../draw/http";
 
 interface ChatMessage {
   id?: number;
@@ -32,24 +33,17 @@ export function ChatPanel({ roomId, socket, currentUserId }: ChatPanelProps) {
   // Load existing messages
   useEffect(() => {
     async function loadMessages() {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${HTTP_BACKEND}/chats/${roomId}`, {
-          headers: token ? { "Authorization": `Bearer ${token}` } : {}
-        });
-        if (res.ok) {
-          const data = await res.json();
-          console.log("Loaded messages from DB:", data.messages);
-          setMessages(data.messages || []);
-        } else {
-          console.error("Failed to load messages:", res.status);
+      if (isOpen) {
+        try {
+          const existingChats = await getExistingChats(roomId);
+          setMessages(existingChats);
+        } catch (error) {
+          console.error("Failed to load existing chats:", error);
         }
-      } catch (e) {
-        console.error("Error loading messages:", e);
       }
     }
     loadMessages();
-  }, [roomId]);
+  }, [roomId, isOpen]);
 
   // Listen for new messages from WebSocket
   useEffect(() => {

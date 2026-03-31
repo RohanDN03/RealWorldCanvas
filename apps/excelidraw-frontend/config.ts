@@ -1,3 +1,3 @@
 // Use environment variables for production, fallback to localhost for development
-export const HTTP_BACKEND = process.env.NEXT_PUBLIC_HTTPS_BACKEND_URL || "http://localhost:3002";
-export const WS_URL = process.env.NEXT_PUBLIC_WS_BACKEND_URL || "ws://localhost:3001";
+export const HTTP_BACKEND = process.env.NEXT_PUBLIC_HTTPS_BACKEND_URL || "http://localhost:10000";
+export const WS_URL = process.env.NEXT_PUBLIC_WS_BACKEND_URL || "ws://localhost:8080";

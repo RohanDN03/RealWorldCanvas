@@ -92,6 +92,78 @@ app.post("/signin", async(req, res) => {
   }
 });
 
+app.get("/shapes/:roomId", middleware, async (req, res) => {
+  const { roomId } = req.params;
+  const userId = (req as any).userId as string;
+
+  if (!roomId) {
+    return res.status(400).json({ message: "Room ID is required" });
+  }
+
+  try {
+    let room = await prismaClient.room.findFirst({
+      where: {
+        slug: roomId,
+      },
+    });
+
+    if (!room) {
+      room = await prismaClient.room.create({
+        data: {
+          slug: roomId,
+          adminId: userId,
+        },
+      });
+    }
+
+    const shapes = await prismaClient.shape.findMany({
+      where: {
+        roomId: room.id,
+      },
+    });
+    res.json(shapes.map(s => ({...s, shapeData: JSON.parse(s.shapeData)})));
+  } catch (e) {
+    console.error("Error fetching shapes:", e);
+    res.status(500).json({ message: "Error fetching shapes" });
+  }
+});
+
+
+app.get("/chats/:roomId", middleware, async (req, res) => {
+  const { roomId } = req.params;
+  const userId = (req as any).userId as string;
+
+  if (!roomId) {
+    return res.status(400).json({ message: "Room ID is required" });
+  }
+  
+  try {
+    let room = await prismaClient.room.findFirst({
+      where: {
+        slug: roomId,
+      },
+    });
+    
+    if (!room) {
+      room = await prismaClient.room.create({
+        data: {
+          slug: roomId,
+          adminId: userId,
+        },
+      });
+    }
+    const chats = await prismaClient.chat.findMany({
+      where: {
+        roomId: room.id,
+      },
+    });
+    res.json(chats);
+  } catch (e) {
+    console.error("Error fetching chats:", e);
+    res.status(500).json({ message: "Error fetching chats" });
+  }
+});
+
 app.post("/room", middleware, async(req, res) => {
   const parsedData = CreateRoomsSchema.safeParse(req.body);
   if (!parsedData.success) {
@@ -101,7 +173,7 @@ app.post("/room", middleware, async(req, res) => {
     return;
   } 
   try{
-    const userId = req.userId;
+    const userId = (req as any).userId;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -122,7 +194,7 @@ app.post("/room", middleware, async(req, res) => {
 // Get all rooms for the current user
 app.get("/rooms", middleware, async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = (req as any).userId;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -143,7 +215,7 @@ app.get("/rooms", middleware, async (req, res) => {
 // Get current user info
 app.get("/me", middleware, async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = (req as any).userId;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -160,131 +232,10 @@ app.get("/me", middleware, async (req, res) => {
   }
 });
 
-// Get shapes for a room
-app.get("/shapes/:roomId", async (req, res) => {
-  try {
-    const roomId = req.params.roomId;
-    let numericRoomId: number | null = null;
-    
-    // First try to find by slug
-    const roomBySlug = await prismaClient.room.findFirst({ where: { slug: roomId } });
-    if (roomBySlug) {
-      numericRoomId = roomBySlug.id;
-    } else if (!isNaN(Number(roomId))) {
-      // Then try as numeric ID
-      const roomById = await prismaClient.room.findFirst({ where: { id: Number(roomId) } });
-      if (roomById) {
-        numericRoomId = roomById.id;
-      }
-    }
-    
-    if (!numericRoomId) {
-      return res.status(404).json({ message: "Room not found" });
-    }
-
-    const shapes = await prismaClient.shape.findMany({
-      where: { roomId: numericRoomId },
-      orderBy: { createdAt: 'asc' },
-      include: {
-        User: {
-          select: { name: true }
-        }
-      }
-    });
-    
-    res.json({ 
-      shapes: shapes.map(s => {
-        const parsed = JSON.parse(s.shapeData);
-        return {
-          ...parsed,
-          // Use existing shapeId or generate one from database id for legacy shapes
-          shapeId: parsed.shapeId || `db-${s.id}`,
-          id: s.id,
-          userId: s.userId,
-          userName: s.User.name
-        };
-      })
-    });
-  } catch (e) {
-    console.error("Error fetching shapes:", e);
-    res.status(500).json({ message: "Error fetching shapes" });
-  }
-});
-
-// Get chats for a room (for actual chat messages, not shapes)
-app.get("/chats/:roomId", async (req, res) => {
-  try {
-    const roomId = req.params.roomId;
-    let numericRoomId: number | null = null;
-    
-    // First try to find by slug
-    const roomBySlug = await prismaClient.room.findFirst({ where: { slug: String(roomId) } });
-    if (roomBySlug) {
-      numericRoomId = roomBySlug.id;
-    } else if (!isNaN(Number(roomId))) {
-      // Then try as numeric ID
-      const roomById = await prismaClient.room.findFirst({ where: { id: Number(roomId) } });
-      if (roomById) {
-        numericRoomId = roomById.id;
-      }
-    }
-    
-    if (!numericRoomId) {
-      return res.status(404).json({ message: "Room not found" });
-    }
-
-    const messages = await prismaClient.chat.findMany({
-      where: { roomId: numericRoomId },
-      orderBy: { createdAt: 'asc' },
-      take: 100,
-      include: {
-        User: {
-          select: { name: true }
-        }
-      }
-    });
-    
-    // Filter out shape messages (messages that look like JSON with shape data)
-    const chatMessages = messages.filter(m => {
-      try {
-        const parsed = JSON.parse(m.message);
-        // If it's a shape message, filter it out
-        if (parsed.shape) return false;
-        return true;
-      } catch {
-        // Not JSON, so it's a real chat message
-        return true;
-      }
-    });
-    
-    res.json({ 
-      messages: chatMessages.map(m => ({
-        id: m.id,
-        message: m.message,
-        userId: m.userId,
-        userName: m.User.name,
-        createdAt: m.createdAt
-      }))
-    });
-  } catch (e) {
-    console.error("Error fetching chats:", e);
-    res.status(500).json({ message: "Error fetching messages" });
-  }
-});
-
-// Get room by slug
-app.get("/room/:slug", async (req, res) => {
-  const slug = req.params.slug;
-  const room = await prismaClient.room.findFirst({
-    where: { slug }
-  });
-  res.json({ room });
-});
-
 // Delete all shapes in a room (clear canvas)
 app.delete("/shapes/:roomId", middleware, async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = (req as any).userId;
     const roomId = req.params.roomId;
     
     let numericRoomId: number | null = null;

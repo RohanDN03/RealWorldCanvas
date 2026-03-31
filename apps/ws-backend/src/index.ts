@@ -1,5 +1,3 @@
-
-
 import { WebSocket, WebSocketServer } from 'ws';
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/config';
@@ -50,6 +48,26 @@ async function getNumericRoomId(roomId: string | number): Promise<number | null>
   }
   
   return null;
+}
+
+async function findOrCreateRoom(roomId: string, userId: string): Promise<number | null> {
+  const numericRoomId = await getNumericRoomId(roomId);
+  if (numericRoomId) {
+    return numericRoomId;
+  }
+
+  try {
+    const newRoom = await prismaClient.room.create({
+      data: {
+        slug: roomId,
+        adminId: userId,
+      },
+    });
+    return newRoom.id;
+  } catch (e) {
+    console.error(`Failed to create room '${roomId}':`, e);
+    return null;
+  }
 }
 
 // Get users in a specific room
@@ -162,12 +180,14 @@ wss.on('connection', function connection(ws, request) {
       }
 
       // Save shape to database
+      const user = users.find(u => u.ws === ws);
+      if (!user) return;
       try {
         await prismaClient.shape.create({
           data: {
             roomId: numericRoomId,
             shapeData: JSON.stringify(shapeData),
-            userId
+            userId: user.userId
           }
         });
       } catch (e) {
@@ -223,12 +243,14 @@ wss.on('connection', function connection(ws, request) {
       }
 
       // Save chat to database
+      const user = users.find(u => u.ws === ws);
+      if (!user) return;
       try {
         await prismaClient.chat.create({
           data: {
             roomId: numericRoomId,
             message,
-            userId
+            userId: user.userId
           }
         });
       } catch (e) {
