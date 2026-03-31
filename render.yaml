@@ -1,0 +1,67 @@
+# RealWorldCanvas deployment configuration for Render
+
+services:
+  # 1. PostgreSQL Database
+  - type: pserv
+    name: database
+    env: postgres
+    plan: free
+    postgres:
+      version: 15
+
+  # 2. HTTPS Backend (REST API)
+  - type: web
+    name: https-backend
+    env: node
+    plan: free
+    rootDir: ./
+    buildCommand: |
+      pnpm install
+      pnpm --filter https-backend build
+    startCommand: pnpm --filter https-backend start
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: database
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true # This will generate a secure, random secret
+      - key: PORT
+        value: 3002
+
+  # 3. WebSocket Backend
+  - type: web
+    name: ws-backend
+    env: node
+    plan: free
+    rootDir: ./
+    buildCommand: |
+      pnpm install
+      pnpm --filter ws-backend build
+    startCommand: pnpm --filter ws-backend start
+    envVars:
+      - key: PORT
+        value: 3001
+
+  # 4. Next.js Frontend
+  - type: web
+    name: excelidraw-frontend
+    env: node
+    plan: free
+    rootDir: ./
+    buildCommand: |
+      pnpm install
+      pnpm --filter excelidraw-frontend build
+    startCommand: pnpm --filter excelidraw-frontend start
+    envVars:
+      - key: NEXT_PUBLIC_HTTPS_BACKEND_URL
+        fromService:
+          type: web
+          name: https-backend
+          property: url
+      - key: NEXT_PUBLIC_WS_BACKEND_URL
+        fromService:
+          type: web
+          name: ws-backend
+          property: url

@@ -12,7 +12,10 @@ declare global {
 }
 
 export function middleware(req:Request,res:Response,next:NextFunction){
-    const token = req.header("authorization") ?? "";
+    const authHeader = req.header("authorization") ?? "";
+    const token = authHeader.startsWith("Bearer ")
+        ? authHeader.slice(7).trim()
+        : authHeader;
     let decoded: string | jwt.JwtPayload;
     try {
         decoded = jwt.verify(token, JWT_SECRET);
@@ -23,9 +26,9 @@ export function middleware(req:Request,res:Response,next:NextFunction){
         decoded &&
         typeof decoded === "object" &&
         "userId" in decoded &&
-        typeof (decoded as any).userId === "string"
+        ((decoded as any).userId !== undefined)
     ) {
-        req.userId = (decoded as any).userId;
+        req.userId = String((decoded as any).userId);
         next();
     } else {
         res.status(403).json({
