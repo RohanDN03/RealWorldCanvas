@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Send, X, MessageCircle, ChevronRight } from "lucide-react";
-import { HTTP_BACKEND } from "@/config";
+import { API_URL } from "@/config";
 import { useTheme } from "@/context/ThemeContext";
 import { getExistingChats } from "../draw/http";
 
