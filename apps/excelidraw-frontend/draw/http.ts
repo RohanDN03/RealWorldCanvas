@@ -1,3 +1,5 @@
+"use client";
+
 import { HTTP_BACKEND } from "@/config";
 import axios from "axios";
 
