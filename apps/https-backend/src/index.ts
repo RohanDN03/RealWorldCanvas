@@ -10,7 +10,7 @@ import cors from "cors";
 const app = express();
 app.use(express.json());
 app.use(cors())
-const PORT = process.env.PORT || 10000;
+const PORT = parseInt(process.env.PORT || "10000", 10);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
