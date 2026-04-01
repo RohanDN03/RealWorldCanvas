@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { HTTP_BACKEND } from "@/config";
+import { API_URL } from "@/config";
 import { Plus, Users, Calendar, ArrowRight, LogOut, Pencil } from "lucide-react";
 
 interface Room {
@@ -40,7 +40,7 @@ export default function Dashboard() {
   async function fetchData(token: string) {
     try {
       // Fetch user info
-      const userRes = await fetch(`${HTTP_BACKEND}/me`, {
+      const userRes = await fetch(`${API_URL}/me`, {
         headers: { authorization: token }
       });
       if (userRes.ok) {
@@ -49,7 +49,7 @@ export default function Dashboard() {
       }
 
       // Fetch rooms
-      const roomsRes = await fetch(`${HTTP_BACKEND}/rooms`, {
+      const roomsRes = await fetch(`${API_URL}/rooms`, {
         headers: { authorization: token }
       });
       if (roomsRes.ok) {
@@ -68,7 +68,7 @@ export default function Dashboard() {
     setCreating(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${HTTP_BACKEND}/room`, {
+      const res = await fetch(`${API_URL}/room`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
