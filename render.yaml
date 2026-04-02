@@ -4,20 +4,15 @@ envVarGroups:
     envVars:
       - key: JWT_SECRET
         generateValue: true
-      - key: CORS_ALLOWED_ORIGINS
-        fromService:
-          type: web
-          name: excelidraw-frontend
-          property: url
 
-services:
-  # 1. PostgreSQL Database
-  - type: pserv
-    name: database
-    env: postgres
+databases:
+  - name: database
+    databaseName: realworldcanvas
+    user: realworldcanvas
     plan: free
 
-  # 2. HTTPS Backend (REST API)
+services:
+  # 1. HTTPS Backend (REST API)
   - type: web
     name: https-backend
     env: node
@@ -30,14 +25,13 @@ services:
     envVars:
       - fromGroup: shared-secrets
       - key: DATABASE_URL
-        fromService:
-          type: pserv
+        fromDatabase:
           name: database
           property: connectionString
       - key: PORT
         value: 3002
 
-  # 3. WebSocket Backend
+  # 2. WebSocket Backend
   - type: web
     name: ws-backend
     env: node
@@ -50,14 +44,13 @@ services:
     envVars:
       - fromGroup: shared-secrets
       - key: DATABASE_URL
-        fromService:
-          type: pserv
+        fromDatabase:
           name: database
           property: connectionString
       - key: PORT
         value: 3001
 
-  # 4. Next.js Frontend
+  # 3. Next.js Frontend
   - type: web
     name: excelidraw-frontend
     env: node
@@ -72,9 +65,9 @@ services:
         fromService:
           type: web
           name: https-backend
-          property: url
+          property: host
       - key: NEXT_PUBLIC_WS_URL
         fromService:
           type: web
           name: ws-backend
-          property: url
+          property: host
