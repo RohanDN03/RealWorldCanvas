@@ -4,18 +4,25 @@ import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
 const PORT = Number(process.env.PORT) || 8080;
+const allowedOriginsFromEnv = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  ...allowedOriginsFromEnv,
+].filter(Boolean);
+
 const wss = new WebSocketServer({
   port: PORT,
   verifyClient: (info, cb) => {
     const origin = info.origin;
-    const allowedOrigins = [
-      'https://real-world-canvas-sable.vercel.app',
-      'http://localhost:3000',
-      'http://localhost:3001'
-    ];
 
-    if (!origin || !allowedOrigins.includes(origin)) {
-      console.error(`Connection from origin ${origin} rejected.`);
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return cb(true);
+
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      // Origin is allowed, proceed to token check
+    } else {
+      console.error(`WebSocket connection from origin ${origin} rejected.`);
       return cb(false, 403, 'Forbidden');
     }
 

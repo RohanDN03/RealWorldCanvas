@@ -10,16 +10,22 @@ import cors from "cors";
 const app = express();
 
 // Comprehensive CORS Configuration
+const allowedOriginsFromEnv = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://real-world-canvas-excelidraw-frontend-imm0n79gb.vercel.app'
-];
+  'http://localhost:3001',
+  ...allowedOriginsFromEnv,
+].filter(Boolean); // Filter out any empty strings
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`CORS error: Origin ${origin} not allowed.`);
       callback(new Error('Not allowed by CORS'));
     }
   },
