@@ -1,5 +1,16 @@
 # RealWorldCanvas deployment configuration for Render
 
+envVarGroups:
+  - name: shared-secrets
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        fromService:
+          type: web
+          name: excelidraw-frontend
+          property: url
+
 services:
   # 1. PostgreSQL Database
   - type: pserv
@@ -19,19 +30,13 @@ services:
       pnpm install
       pnpm turbo build --filter=https-backend...
     startCommand: pnpm --filter https-backend start
+    envVarGroup: shared-secrets
     envVars:
       - key: DATABASE_URL
         fromService:
           type: pserv
           name: database
           property: connectionString
-      - key: JWT_SECRET
-        generateValue: true # This will generate a secure, random secret
-      - key: CORS_ALLOWED_ORIGINS
-        fromService:
-          type: web
-          name: excelidraw-frontend
-          property: url
       - key: PORT
         value: 3002
 
@@ -45,22 +50,13 @@ services:
       pnpm install
       pnpm turbo build --filter=ws-backend...
     startCommand: pnpm --filter ws-backend start
+    envVarGroup: shared-secrets
     envVars:
       - key: DATABASE_URL
         fromService:
           type: pserv
           name: database
           property: connectionString
-      - key: JWT_SECRET
-        fromService:
-          type: web
-          name: https-backend
-          property: envVar.JWT_SECRET
-      - key: CORS_ALLOWED_ORIGINS
-        fromService:
-          type: web
-          name: excelidraw-frontend
-          property: url
       - key: PORT
         value: 3001
 
