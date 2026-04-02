@@ -20,18 +20,26 @@ services:
     postgres:
       version: 15
 
+  services:
+  # 1. PostgreSQL Database
+  - type: pserv
+    name: database
+    env: postgres
+    version: "15"
+    plan: free
+
   # 2. HTTPS Backend (REST API)
   - type: web
     name: https-backend
     env: node
     plan: free
     rootDir: ./
-    buildCommand: |
+    buildCommmand: |
       pnpm install
       pnpm turbo build --filter=https-backend...
     startCommand: pnpm --filter https-backend start
-    envVarGroup: shared-secrets
-    envVars:
+    env:
+      - fromGroup: shared-secrets
       - key: DATABASE_URL
         fromService:
           type: pserv
@@ -39,6 +47,26 @@ services:
           property: connectionString
       - key: PORT
         value: 3002
+
+  # 3. WebSocket Backend
+  - type: web
+    name: ws-backend
+    env: node
+    plan: free
+    rootDir: ./
+    buildCommand: |
+      pnpm install
+      pnpm turbo build --filter=ws-backend...
+    startCommand: pnpm --filter ws-backend start
+    env:
+      - fromGroup: shared-secrets
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: database
+          property: connectionString
+      - key: PORT
+        value: 3001
 
   # 3. WebSocket Backend
   - type: web
