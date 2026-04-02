@@ -80,15 +80,3 @@ services:
           type: web
           name: ws-backend
           property: url
-
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: https-backend
-          property: url
-      - key: NEXT_PUBLIC_WS_URL
-        fromService:
-          type: web
-          name: ws-backend
-          property: url
