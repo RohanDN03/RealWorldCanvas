@@ -1,6 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import jwt from "jsonwebtoken";
-import { createClient } from "redis";
+import { createClient, RedisClientType } from "redis";
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
@@ -15,11 +15,11 @@ const ROOM_USER_TTL_SECONDS = Number(process.env.ROOM_USER_TTL_SECONDS) || 86400
 
 // ─── Redis clients ────────────────────────────────────────────────────────────
 
-const pubClient = createClient({ url: REDIS_URL });
-const subClient = createClient({ url: REDIS_URL });
+const pubClient: RedisClientType = createClient({ url: REDIS_URL });
+const subClient: RedisClientType = createClient({ url: REDIS_URL });
 
-pubClient.on('error', (err) => console.error('Redis pubClient error:', err));
-subClient.on('error', (err) => console.error('Redis subClient error:', err));
+pubClient.on('error', (err: any) => console.error('Redis pubClient error:', err));
+subClient.on('error', (err: any) => console.error('Redis subClient error:', err));
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,7 +92,7 @@ async function removeUserFromRoom(roomId: string, userId: string, userName: stri
 
 async function broadcastActiveUsers(roomId: string): Promise<void> {
   const raw = await pubClient.sMembers(ROOM_USERS_KEY(roomId));
-  const activeUsers = raw.map(r => JSON.parse(r) as { userId: string; userName: string });
+  const activeUsers = raw.map((r: string) => JSON.parse(r) as { userId: string; userName: string });
 
   const message = JSON.stringify({ type: 'active_users', users: activeUsers, roomId });
   users
@@ -110,7 +110,7 @@ async function init() {
 // subscription per room.  The _senderId / _skipSender fields let us filter out
 // echo for the originating user without an additional DB round-trip.
 
-  subClient.pSubscribe('room:*', (message, channel) => {
+  subClient.pSubscribe('room:*', (message: any, channel: any) => {
   // channel looks like "room:<roomId>"
   const roomId = channel.slice('room:'.length);
   let payload: Record<string, unknown>;
