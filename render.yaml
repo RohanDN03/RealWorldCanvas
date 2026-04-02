@@ -1,5 +1,4 @@
 # RealWorldCanvas deployment configuration for Render
-
 envVarGroups:
   - name: shared-secrets
     envVars:
@@ -17,16 +16,7 @@ services:
     name: database
     env: postgres
     plan: free
-    postgres:
-      version: 15
-
-  services:
-  # 1. PostgreSQL Database
-  - type: pserv
-    name: database
-    env: postgres
     version: "15"
-    plan: free
 
   # 2. HTTPS Backend (REST API)
   - type: web
@@ -34,11 +24,11 @@ services:
     env: node
     plan: free
     rootDir: ./
-    buildCommmand: |
+    buildCommand: |
       pnpm install
       pnpm turbo build --filter=https-backend...
     startCommand: pnpm --filter https-backend start
-    env:
+    envVars:
       - fromGroup: shared-secrets
       - key: DATABASE_URL
         fromService:
@@ -58,28 +48,8 @@ services:
       pnpm install
       pnpm turbo build --filter=ws-backend...
     startCommand: pnpm --filter ws-backend start
-    env:
-      - fromGroup: shared-secrets
-      - key: DATABASE_URL
-        fromService:
-          type: pserv
-          name: database
-          property: connectionString
-      - key: PORT
-        value: 3001
-
-  # 3. WebSocket Backend
-  - type: web
-    name: ws-backend
-    env: node
-    plan: free
-    rootDir: ./
-    buildCommand: |
-      pnpm install
-      pnpm turbo build --filter=ws-backend...
-    startCommand: pnpm --filter ws-backend start
-    envVarGroup: shared-secrets
     envVars:
+      - fromGroup: shared-secrets
       - key: DATABASE_URL
         fromService:
           type: pserv
@@ -98,6 +68,18 @@ services:
       pnpm install
       pnpm --filter excelidraw-frontend build
     startCommand: pnpm --filter excelidraw-frontend start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: https-backend
+          property: url
+      - key: NEXT_PUBLIC_WS_URL
+        fromService:
+          type: web
+          name: ws-backend
+          property: url
+
     envVars:
       - key: NEXT_PUBLIC_API_URL
         fromService:
