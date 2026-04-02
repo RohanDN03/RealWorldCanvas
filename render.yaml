@@ -16,7 +16,8 @@ services:
     name: database
     env: postgres
     plan: free
-    version: "15"
+    postgres:
+      version: 15
 
   # 2. HTTPS Backend (REST API)
   - type: web
