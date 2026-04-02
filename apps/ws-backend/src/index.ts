@@ -144,6 +144,16 @@ wss.on('connection', function connection(ws, request) {
       console.log(`join_room request from ws, user found: ${user ? user.userName : 'NOT FOUND'}`);
       if (user) {
         const roomId = parsedData.roomId;
+        
+        // Find or create the room in the database
+        const numericRoomId = await findOrCreateRoom(roomId, user.userId);
+        if (!numericRoomId) {
+          // Handle case where room can't be found or created
+          console.error(`Could not find or create room: ${roomId}`);
+          ws.send(JSON.stringify({ type: 'error', message: `Could not find or create room: ${roomId}` }));
+          return;
+        }
+
         if (!user.rooms.includes(roomId)) {
           user.rooms.push(roomId);
         }
