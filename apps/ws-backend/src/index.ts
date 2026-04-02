@@ -1,48 +1,17 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
 const PORT = Number(process.env.PORT) || 8080;
-const allowedOriginsFromEnv = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
+const allowedOriginsFromEnv = process.env.CORS_ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()).filter(Boolean) || [];
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   ...allowedOriginsFromEnv,
 ].filter(Boolean);
 
-const wss = new WebSocketServer({
-  port: PORT,
-  verifyClient: (info, cb) => {
-    const origin = info.origin;
-
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return cb(true);
-
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      // Origin is allowed, proceed to token check
-    } else {
-      console.error(`WebSocket connection from origin ${origin} rejected.`);
-      return cb(false, 403, 'Forbidden');
-    }
-
-    const url = info.req.url;
-    if (!url) {
-      return cb(false, 400, 'URL not present');
-    }
-    const queryParams = new URLSearchParams(url.split('?')[1]);
-    const token = queryParams.get('token') || "";
-    const userId = checkUser(token);
-
-    if (userId) {
-      (info.req as any).userId = userId; // Attach userId to the request object
-      cb(true);
-    } else {
-      console.error('WebSocket connection rejected due to invalid token.');
-      cb(false, 401, 'Unauthorized');
-    }
-  }
-});
+const wss = new WebSocketServer({ port: PORT });
 console.log(`WebSocket Server started on port ${PORT}`);
 
 interface User {
@@ -129,10 +98,25 @@ function broadcastActiveUsers(roomId: string) {
 }
 
 wss.on('connection', function connection(ws, request) {
-  const userId = (request as any).userId;
+  const origin = request.headers.origin;
+  if (origin && allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
+    console.error(`WebSocket connection from origin ${origin} rejected.`);
+    ws.close(1008, "Forbidden origin");
+    return;
+  }
+
+  const url = request.url;
+  if (!url) {
+    ws.close(4001, "Invalid or missing token");
+    return;
+  }
+
+  const queryParams = new URLSearchParams(url.split('?')[1]);
+  const token = queryParams.get('token') || "";
+  const userId = checkUser(token);
 
   if (!userId) {
-    // This should technically not be reached if verifyClient is working correctly
+    console.error('WebSocket connection rejected due to invalid token.');
     ws.close(4001, "Invalid or missing token");
     return;
   }

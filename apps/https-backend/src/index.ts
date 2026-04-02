@@ -10,7 +10,7 @@ import cors from "cors";
 const app = express();
 
 // Comprehensive CORS Configuration
-const allowedOriginsFromEnv = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [];
+const allowedOriginsFromEnv = process.env.CORS_ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()).filter(Boolean) || [];
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',

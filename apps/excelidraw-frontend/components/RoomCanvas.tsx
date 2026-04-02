@@ -82,6 +82,8 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
                     setConnectionStatus("unauthorized");
                     localStorage.removeItem("token");
                     setTimeout(() => router.push("/signin"), 1500);
+                } else if (event.code === 1008) {
+                    setConnectionStatus("error");
                 } else if (event.code !== 1000) {
                     // Abnormal close - try to reconnect
                     console.log("WebSocket closed unexpectedly, reconnecting in 2s...");
