@@ -12,7 +12,7 @@ app.use(express.json());
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://real-world-canvas-excelidraw-frontend.vercel.app'
+  'https://real-world-canvas-excelidraw-frontend-imm0n79gb.vercel.app'
 ];
 
 app.use(cors({
