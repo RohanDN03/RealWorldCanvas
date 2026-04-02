@@ -4,7 +4,25 @@ import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
 const PORT = Number(process.env.PORT) || 8080;
-const wss = new WebSocketServer({ port: PORT });
+const wss = new WebSocketServer({
+  port: PORT,
+  verifyClient: (info, cb) => {
+    const url = info.req.url;
+    if (!url) {
+      return cb(false, 400, 'URL not present');
+    }
+    const queryParams = new URLSearchParams(url.split('?')[1]);
+    const token = queryParams.get('token') || "";
+    const userId = checkUser(token);
+
+    if (userId) {
+      (info.req as any).userId = userId; // Attach userId to the request object
+      cb(true);
+    } else {
+      cb(false, 401, 'Unauthorized');
+    }
+  }
+});
 console.log(`WebSocket Server started on port ${PORT}`);
 
 interface User {
@@ -91,15 +109,10 @@ function broadcastActiveUsers(roomId: string) {
 }
 
 wss.on('connection', function connection(ws, request) {
-  const url = request.url;
-  if (!url) {
-    return;
-  }
-  const queryParams = new URLSearchParams(url.split('?')[1]);
-  const token = queryParams.get('token') || "";
-  const userId = checkUser(token);
+  const userId = (request as any).userId;
 
-  if (userId == null) {
+  if (!userId) {
+    // This should technically not be reached if verifyClient is working correctly
     ws.close(4001, "Invalid or missing token");
     return;
   }
