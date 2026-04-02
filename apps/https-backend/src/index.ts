@@ -8,22 +8,33 @@ import { prismaClient } from '@repo/db/client';
 import bcrypt from 'bcryptjs';
 import cors from "cors";
 const app = express();
-app.use(express.json());
 
+// Comprehensive CORS Configuration
 const allowedOrigins = [
   'http://localhost:3000',
   'https://real-world-canvas-excelidraw-frontend-imm0n79gb.vercel.app'
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  }
-}));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
+
+// Use the CORS middleware
+app.use(cors(corsOptions));
+
+app.use(express.json());
 
 const PORT = parseInt(process.env.PORT || "10000", 10);
 
