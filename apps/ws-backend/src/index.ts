@@ -7,6 +7,18 @@ const PORT = Number(process.env.PORT) || 8080;
 const wss = new WebSocketServer({
   port: PORT,
   verifyClient: (info, cb) => {
+    const origin = info.origin;
+    const allowedOrigins = [
+      'https://real-world-canvas-sable.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ];
+
+    if (!origin || !allowedOrigins.includes(origin)) {
+      console.error(`Connection from origin ${origin} rejected.`);
+      return cb(false, 403, 'Forbidden');
+    }
+
     const url = info.req.url;
     if (!url) {
       return cb(false, 400, 'URL not present');
@@ -19,6 +31,7 @@ const wss = new WebSocketServer({
       (info.req as any).userId = userId; // Attach userId to the request object
       cb(true);
     } else {
+      console.error('WebSocket connection rejected due to invalid token.');
       cb(false, 401, 'Unauthorized');
     }
   }
