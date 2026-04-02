@@ -17,7 +17,7 @@ services:
     rootDir: ./
     buildCommand: |
       pnpm install
-      pnpm --filter https-backend build
+      pnpm turbo build --filter=https-backend...
     startCommand: pnpm --filter https-backend start
     envVars:
       - key: DATABASE_URL
@@ -38,9 +38,19 @@ services:
     rootDir: ./
     buildCommand: |
       pnpm install
-      pnpm --filter ws-backend build
+      pnpm turbo build --filter=ws-backend...
     startCommand: pnpm --filter ws-backend start
     envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: database
+          property: connectionString
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: https-backend
+          property: envVar.JWT_SECRET
       - key: PORT
         value: 3001
 
