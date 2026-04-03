@@ -313,13 +313,13 @@ wss.on('connection', function connection(ws, request) {
 
   // ── Resolve username from DB async (non-blocking) ─────────────────────────
   prismaClient.user.findUnique({ where: { id: userId } })
-    .then(dbUser => {
+    .then((dbUser: any)=> {
       if (dbUser) {
         newUser.userName = dbUser.name;
         console.log(`Username resolved: ${newUser.userName}`);
       }
     })
-    .catch(e => console.error('Error fetching user:', e));
+    .catch((e: any)=> console.error('Error fetching user:', e));
   });
 }
 
