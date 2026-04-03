@@ -210,7 +210,7 @@ importers:
   packages/db:
     dependencies:
       '@prisma/client':
-        specifier: 6.15.0
+        specifier: ^6.0.0
         version: 6.15.0(prisma@6.15.0(typescript@5.9.2))(typescript@5.9.2)
       dotenv:
         specifier: ^17.2.3
@@ -220,7 +220,7 @@ importers:
         specifier: workspace:*
         version: link:../typescript-config
       prisma:
-        specifier: ^6.15.0
+        specifier: ^6.0.0
         version: 6.15.0(typescript@5.9.2)
 
   packages/eslint-config:
